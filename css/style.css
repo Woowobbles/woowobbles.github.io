@@ -1,0 +1,135 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+body.is-locked {
+  overflow: hidden;
+  height: 100%;
+}
+
+.spacer {
+  height: 100vh;
+}
+
+.video-section {
+  height: 200vh;
+}
+
+.video-section.is-sticky {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sticky-video {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  column-gap: 5vw;
+  padding: 0 15vw;
+  box-sizing: border-box;
+}
+
+.sticky-video {
+  position: relative;
+  height: 100vh;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  column-gap: 5vw;
+  padding: 0 15vw;
+  box-sizing: border-box;
+}
+
+.left-column,
+.right-column {
+  background: rgba(255, 0, 0, 0.05);
+}
+
+.left-column,
+.right-column {
+  min-height: 100%;
+}
+
+.left-column {
+  display: flex;
+  align-items: center;
+  column-gap: 20px;
+  justify-content: flex-start;
+  position: relative;
+}
+
+.left-column video {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.left-column video.video-exit {
+  transform: translateY(-50%) translateX(-120vw) rotate(-15deg) scale(0.8);
+}
+
+video,
+#cardImage {
+  width: 10vw;
+  z-index: 1;
+}
+
+#cardImage {
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+  transform: none;
+  transition: transform 0.35s ease, box-shadow 0.2s ease, z-index 0.2s ease;
+  cursor: pointer;
+}
+
+#cardImage:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+  z-index: 10;
+}
+
+.left-column > #cardImage {
+  position: relative;
+  flex-shrink: 0;
+}
+
+#cardImage.is-selected {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(2);
+  z-index: 100;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  will-change: transform;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 50;
+}
+
+video {
+  width: 20vw;
+  position: relative;
+  z-index: 2;
+  transition: transform 2s ease, opacity 1s ease;
+}
+
+.video-exit {
+  transform: translateX(-120vw) rotate(-15deg) scale(0.8);
+  opacity: 1;
+}
