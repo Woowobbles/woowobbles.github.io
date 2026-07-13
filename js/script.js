@@ -3,6 +3,10 @@ const section = document.querySelector(".video-section");
 
 let played = false;
 
+// Prevent scroll when locked
+function preventScroll(e) {
+  e.preventDefault();
+}
 
 // Make sure video is ready
 video.addEventListener("loadeddata", () => {
@@ -14,7 +18,8 @@ video.addEventListener("loadeddata", () => {
       if (entry.isIntersecting && !played) {
 
         document.body.classList.add("is-locked");
-        document.querySelector(".video-section").classList.add("is-sticky");
+        document.addEventListener("wheel", preventScroll, { passive: false });
+        document.addEventListener("touchmove", preventScroll, { passive: false });
         video.play();
         played = true;
 
@@ -33,12 +38,12 @@ video.addEventListener("loadeddata", () => {
 
 
 video.addEventListener("ended", () => {
+  // Allow scrolling immediately when video ends
+  document.body.classList.remove("is-locked");
+  document.removeEventListener("wheel", preventScroll);
+  document.removeEventListener("touchmove", preventScroll);
+  
   setTimeout(() => {
     video.classList.add("video-exit");
   }, 800);
-
-  setTimeout(() => {
-    document.body.classList.remove("is-locked");
-    document.querySelector(".video-section").classList.remove("is-sticky");
-  }, 2200);
 });

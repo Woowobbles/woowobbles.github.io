@@ -1,11 +1,11 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
+  scrollbar-gutter: stable;
 }
 
 body.is-locked {
-  overflow: hidden;
-  height: 100%;
+  /* Scroll prevention handled by JavaScript */
 }
 
 .spacer {
@@ -16,31 +16,13 @@ body.is-locked {
   height: 200vh;
 }
 
-.video-section.is-sticky {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-}
-
 .sticky-video {
   position: sticky;
   top: 0;
+  width: 100%;
   height: 100vh;
-
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  column-gap: 5vw;
-  padding: 0 15vw;
-  box-sizing: border-box;
-}
-
-.sticky-video {
-  position: relative;
-  height: 100vh;
+  z-index: 1;
+  overflow: hidden;
 
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -53,19 +35,44 @@ body.is-locked {
 .left-column,
 .right-column {
   background: rgba(255, 0, 0, 0.05);
-}
-
-.left-column,
-.right-column {
-  min-height: 100%;
+  height: 100%;
 }
 
 .left-column {
   display: flex;
-  align-items: center;
-  column-gap: 20px;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: flex-start;
   position: relative;
+  padding-top: 40px;
+  text-align: right;
+}
+
+.text-header {
+  width: 100%;
+  margin-bottom: 40px;
+  
+}
+
+.cards-title {
+  margin: 0 0 10px 0;
+  font-size: 2.0rem;
+  flex-shrink: 0;
+}
+
+.cards-subtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.cards-container {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 1.5vw;
+  width: 100%;
 }
 
 .left-column video {
@@ -79,30 +86,22 @@ body.is-locked {
   transform: translateY(-50%) translateX(-120vw) rotate(-15deg) scale(0.8);
 }
 
-video,
 #cardImage {
   width: 10vw;
-  z-index: 1;
-}
-
-#cardImage {
+  height: auto;
   position: relative;
   display: block;
-  flex-shrink: 0;
+  flex: 0 0 auto;
   transform: none;
   transition: transform 0.35s ease, box-shadow 0.2s ease, z-index 0.2s ease;
   cursor: pointer;
+  z-index: 1;
 }
 
 #cardImage:hover {
   transform: scale(1.05);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
   z-index: 10;
-}
-
-.left-column > #cardImage {
-  position: relative;
-  flex-shrink: 0;
 }
 
 #cardImage.is-selected {
@@ -124,12 +123,19 @@ video,
 
 video {
   width: 20vw;
-  position: relative;
+  height: 100%;
+  max-height: 100vh;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 2;
   transition: transform 2s ease, opacity 1s ease;
+  will-change: transform;
+  object-fit: contain;
 }
 
-.video-exit {
-  transform: translateX(-120vw) rotate(-15deg) scale(0.8);
+video.video-exit {
+  transform: translateY(-50%) translateX(-120vw) rotate(-15deg) scale(0.8);
   opacity: 1;
 }
