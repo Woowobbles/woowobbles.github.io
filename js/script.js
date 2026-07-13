@@ -43,6 +43,12 @@ video.addEventListener("ended", () => {
   document.removeEventListener("wheel", preventScroll);
   document.removeEventListener("touchmove", preventScroll);
   
+  // Animate cards into view
+  const cards = document.querySelectorAll("#cardImage");
+  cards.forEach(card => {
+    card.classList.add("cards-visible");
+  });
+  
   setTimeout(() => {
     video.classList.add("video-exit");
   }, 800);

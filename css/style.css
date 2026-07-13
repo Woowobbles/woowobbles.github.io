@@ -89,13 +89,33 @@ body.is-locked {
 #cardImage {
   width: 10vw;
   height: auto;
-  position: relative;
   display: block;
   flex: 0 0 auto;
-  transform: none;
-  transition: transform 0.35s ease, box-shadow 0.2s ease, z-index 0.2s ease;
+  transition: transform 0.6s ease-out, box-shadow 0.2s ease, z-index 0.2s ease;
   cursor: pointer;
   z-index: 1;
+}
+
+#cardImage:nth-child(1) {
+  transform: translateX(calc(80% + 15vw)) translateY(85%);
+}
+
+#cardImage:nth-child(2) {
+  transform: translateX(calc(80% + 3.5vw)) translateY(85%);
+}
+
+#cardImage:nth-child(3) {
+  transform: translateX(calc(80% - 8vw)) translateY(85%);
+}
+
+#cardImage.cards-visible {
+  transform: none;
+}
+
+#cardImage.cards-visible:nth-child(1),
+#cardImage.cards-visible:nth-child(2),
+#cardImage.cards-visible:nth-child(3) {
+  transform: none;
 }
 
 #cardImage:hover {
