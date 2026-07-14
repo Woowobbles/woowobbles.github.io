@@ -108,22 +108,26 @@ body.is-locked {
   align-items: center;
   justify-content: flex-start;
   gap: 0.5rem;
+  transition: transform 0.6s ease-out;
+  will-change: transform;
+}
+
+.card-item.no-transition {
+  transition: none !important;
 }
 
 .card-image {
   width: 10vw;
   height: auto;
   display: block;
-  transform: translateY(30px);
-  opacity: 0;
-  transition: transform 0.6s ease-out, opacity 0.6s ease-out, box-shadow 0.2s ease, z-index 0.2s ease;
+  transform: none;
+  opacity: 1;
+  transition: box-shadow 0.2s ease, z-index 0.2s ease;
   cursor: pointer;
   z-index: 1;
 }
 
 .card-image.cards-visible {
-  transform: none;
-  opacity: 1;
 }
 
 .card-item:hover .card-image {

@@ -2,6 +2,8 @@ const video = document.getElementById("packVideo");
 const section = document.querySelector(".video-section");
 const cardsContainer = document.getElementById("cardsContainer");
 const cardsTitle = document.querySelector(".cards-title");
+const ORIGIN_X_FINE_TUNE_PX = 1.5;
+const ORIGIN_Y_FINE_TUNE_PX = 6;
 
 const cardsData = [
   { set: "Base Set | Shadowless 1st Edition", imgurl: "images/1.1 BS1_Bulb.png", number: "1/3" },
@@ -14,10 +16,14 @@ const cardsData = [
 ];
 
 function renderCards() {
+  cardsContainer.style.visibility = "hidden";
   cardsContainer.innerHTML = "";
   const setNames = [...new Set(cardsData.map(card => card.set))];
 
   cardsTitle.textContent = setNames.join(", ");
+
+  let loadedImages = 0;
+  const totalImages = cardsData.length;
 
   cardsData.forEach(card => {
     const item = document.createElement("div");
@@ -37,6 +43,66 @@ function renderCards() {
     item.appendChild(img);
     item.appendChild(caption);
     cardsContainer.appendChild(item);
+
+    const onLoad = () => {
+      loadedImages += 1;
+      if (loadedImages === totalImages) {
+        requestAnimationFrame(() => requestAnimationFrame(prepareFanOutCards));
+      }
+    };
+
+    if (img.complete && img.naturalWidth !== 0) {
+      onLoad();
+    } else {
+      img.addEventListener("load", onLoad);
+      img.addEventListener("error", onLoad);
+    }
+  });
+}
+
+function prepareFanOutCards() {
+  const items = Array.from(document.querySelectorAll(".card-item"));
+  if (items.length === 0) return;
+
+  // Keep the container as a grid and only move cards visually with transform.
+  cardsContainer.style.visibility = "hidden";
+  const containerRect = cardsContainer.getBoundingClientRect();
+  const videoRect = video.getBoundingClientRect();
+  const positions = items.map(item => {
+    const rect = item.getBoundingClientRect();
+    return {
+      item,
+      top: rect.top - containerRect.top,
+      left: rect.left - containerRect.left,
+      width: rect.width,
+      height: rect.height
+    };
+  });
+
+  const firstCard = positions[0];
+  const videoCenterTop = (videoRect.top - containerRect.top) + (videoRect.height / 2);
+  const videoCenterLeft = (videoRect.left - containerRect.left) + (videoRect.width / 2);
+
+  const originTop = Number.isFinite(videoCenterTop)
+    ? videoCenterTop - (firstCard.height / 2) + ORIGIN_Y_FINE_TUNE_PX
+    : firstCard.top;
+  const originLeft = Number.isFinite(videoCenterLeft)
+    ? videoCenterLeft + ORIGIN_X_FINE_TUNE_PX
+    : firstCard.left;
+
+  positions.forEach(({ item, top, left }) => {
+    const dx = originLeft - left;
+    const dy = originTop - top;
+    item.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+    item.classList.add("no-transition");
+  });
+
+  requestAnimationFrame(() => {
+    items.forEach(item => {
+      item.style.transition = "transform 0.6s ease-out";
+      item.classList.remove("no-transition");
+    });
+    cardsContainer.style.visibility = "visible";
   });
 }
 
@@ -75,9 +141,17 @@ video.addEventListener("ended", () => {
   document.removeEventListener("touchmove", preventScroll);
 
   // Animate cards into view
-  const cards = document.querySelectorAll(".card-image");
+  const cards = document.querySelectorAll(".card-item");
   cards.forEach(card => {
-    card.classList.add("cards-visible");
+    card.classList.remove("no-transition");
+    card.style.transition = "transform 0.6s ease-out";
+  });
+
+  requestAnimationFrame(() => {
+    cards.forEach(card => void card.offsetWidth);
+    cards.forEach(card => {
+      card.style.transform = "none";
+    });
   });
 
   setTimeout(() => {
