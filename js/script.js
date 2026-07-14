@@ -4,6 +4,10 @@ const cardsContainer = document.getElementById("cardsContainer");
 const cardsTitle = document.querySelector(".cards-title");
 const ORIGIN_X_FINE_TUNE_PX = 1.5;
 const ORIGIN_Y_FINE_TUNE_PX = 6;
+const STACK_LIFT_MULTIPLIER = 1.2;
+const STACK_LIFT_DURATION_MS = 800;
+const FAN_OUT_DURATION_MS = 800;
+const VIDEO_EXIT_DURATION_MS = 300;
 
 const cardsData = [
   { set: "Base Set | Shadowless 1st Edition", imgurl: "images/1.1 BS1_Bulb.png", number: "1/3" },
@@ -94,6 +98,8 @@ function prepareFanOutCards() {
     const dx = originLeft - left;
     const dy = originTop - top;
     item.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+    item.dataset.stackDx = String(dx);
+    item.dataset.stackDy = String(dy);
     item.classList.add("no-transition");
   });
 
@@ -144,21 +150,31 @@ video.addEventListener("ended", () => {
   const cards = document.querySelectorAll(".card-item");
   cards.forEach(card => {
     card.classList.remove("no-transition");
-    card.style.transition = "transform 0.6s ease-out";
+    card.style.transition = `transform ${STACK_LIFT_DURATION_MS}ms ease-out`;
   });
 
   requestAnimationFrame(() => {
     cards.forEach(card => void card.offsetWidth);
     cards.forEach(card => {
-      card.style.transform = "none";
+      const stackDx = Number(card.dataset.stackDx || 0);
+      const stackDy = Number(card.dataset.stackDy || 0);
+      const liftY = card.getBoundingClientRect().height * STACK_LIFT_MULTIPLIER;
+      card.style.transform = `translate3d(${stackDx}px, ${stackDy - liftY}px, 0)`;
     });
   });
 
   setTimeout(() => {
-    document.body.classList.add("animation-complete");
-  }, 600);
+    video.classList.add("video-exit");
+
+    setTimeout(() => {
+      cards.forEach(card => {
+        card.style.transition = `transform ${FAN_OUT_DURATION_MS}ms ease-out`;
+        card.style.transform = "none";
+      });
+    }, VIDEO_EXIT_DURATION_MS);
+  }, STACK_LIFT_DURATION_MS);
 
   setTimeout(() => {
-    video.classList.add("video-exit");
-  }, 800);
+    document.body.classList.add("animation-complete");
+  }, STACK_LIFT_DURATION_MS + VIDEO_EXIT_DURATION_MS + FAN_OUT_DURATION_MS);
 });
