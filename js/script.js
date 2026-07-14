@@ -21,14 +21,10 @@ const cardsData = [
 
 function renderCards() {
   cardsContainer.style.visibility = "hidden";
-  cardsContainer.style.visibility = "hidden";
   cardsContainer.innerHTML = "";
   const setNames = [...new Set(cardsData.map(card => card.set))];
 
   cardsTitle.textContent = setNames.join(", ");
-
-  let loadedImages = 0;
-  const totalImages = cardsData.length;
 
   let loadedImages = 0;
   const totalImages = cardsData.length;
@@ -151,7 +147,6 @@ video.addEventListener("ended", () => {
   document.removeEventListener("touchmove", preventScroll);
 
   // Animate cards into view
-  const cards = document.querySelectorAll(".card-item");
   const cards = document.querySelectorAll(".card-item");
   cards.forEach(card => {
     card.classList.remove("no-transition");
