@@ -129,6 +129,9 @@ body.is-locked {
   transform: none;
   opacity: 1;
   transition: box-shadow 0.2s ease, z-index 0.2s ease;
+  transform: none;
+  opacity: 1;
+  transition: box-shadow 0.2s ease, z-index 0.2s ease;
   cursor: pointer;
   z-index: 1;
 }
