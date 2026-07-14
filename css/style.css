@@ -32,6 +32,12 @@ body.is-locked {
   box-sizing: border-box;
 }
 
+body.animation-complete .sticky-video {
+  position: relative;
+  top: auto;
+  height: auto;
+}
+
 .left-column,
 .right-column {
   background: rgba(255, 0, 0, 0.05);

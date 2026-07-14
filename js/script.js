@@ -1,5 +1,6 @@
 const video = document.getElementById("packVideo");
 const section = document.querySelector(".video-section");
+const stickyVideo = document.querySelector(".sticky-video");
 const cardsContainer = document.getElementById("cardsContainer");
 const cardsTitle = document.querySelector(".cards-title");
 const ORIGIN_X_FINE_TUNE_PX = 1.5;
@@ -121,6 +122,22 @@ function preventScroll(e) {
   e.preventDefault();
 }
 
+function completeAnimationWithoutJump() {
+  if (!stickyVideo) {
+    document.body.classList.add("animation-complete");
+    return;
+  }
+
+  const beforeTop = stickyVideo.getBoundingClientRect().top;
+  document.body.classList.add("animation-complete");
+  const afterTop = stickyVideo.getBoundingClientRect().top;
+  const deltaY = afterTop - beforeTop;
+
+  if (Math.abs(deltaY) > 0.5) {
+    window.scrollBy(0, deltaY);
+  }
+}
+
 // Make sure video is ready
 video.addEventListener("loadeddata", () => {
   const observer = new IntersectionObserver(entries => {
@@ -175,6 +192,6 @@ video.addEventListener("ended", () => {
   }, STACK_LIFT_DURATION_MS);
 
   setTimeout(() => {
-    document.body.classList.add("animation-complete");
+    completeAnimationWithoutJump();
   }, STACK_LIFT_DURATION_MS + VIDEO_EXIT_DURATION_MS + FAN_OUT_DURATION_MS);
 });
