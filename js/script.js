@@ -6,6 +6,17 @@ const FAN_OUT_DURATION_MS = 800;
 const VIDEO_EXIT_DURATION_MS = 300;
 const setsRoot = document.getElementById("setsRoot");
 
+const VINE_TIMELINE_ID = "vineTimeline";
+const VINE_SIZE = {
+  // Global scale for the vine body and its motion profile.
+  vine: 1,
+  // Additional multiplier for the bud relative to the vine.
+  tip: 0.05
+};
+const VINE_BASE_TIP_SCALE = 2.1;
+let vineState = null;
+let vineRafId = 0;
+
 const setsData = {
   baseSetShadowless1st: {
     title: "Base Set | Shadowless 1st Edition",
@@ -55,6 +66,197 @@ const setsData = {
 
 function preventScroll(e) {
   e.preventDefault();
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function buildSmoothPath(points, tension = 0.2) {
+  if (points.length < 2) {
+    return "";
+  }
+
+  if (points.length === 2) {
+    return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+  }
+
+  let d = `M ${points[0].x} ${points[0].y}`;
+
+  for (let i = 0; i < points.length - 1; i += 1) {
+    const p0 = points[i - 1] || points[i];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[i + 2] || p2;
+
+    const cp1x = p1.x + ((p2.x - p0.x) * tension) / 6;
+    const cp1y = p1.y + ((p2.y - p0.y) * tension) / 6;
+    const cp2x = p2.x - ((p3.x - p1.x) * tension) / 6;
+    const cp2y = p2.y - ((p3.y - p1.y) * tension) / 6;
+
+    d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+  }
+
+  return d;
+}
+
+function buildVinePath(width, height) {
+  const vineScale = clamp(VINE_SIZE.vine, 0.4, 3);
+  const baseX = width * 0.5;
+  const step = 120 * vineScale;
+  const amplitude = clamp(width * 0.028 * vineScale, 12 * vineScale, 34 * vineScale);
+  const extraLength = 200;
+  const totalHeight = Math.max(height + extraLength, window.innerHeight + extraLength);
+  const points = [];
+
+  for (let y = -60; y <= totalHeight; y += step) {
+    const phase = y / step;
+    const x = baseX
+      + Math.sin(phase * 0.85) * amplitude
+      + Math.sin(phase * 1.7) * (amplitude * 0.22);
+    points.push({ x, y });
+  }
+
+  if (points.length < 2) {
+    return `M ${baseX} -60 L ${baseX} ${totalHeight}`;
+  }
+
+  return buildSmoothPath(points, 1.05);
+}
+
+function getPathLengthAtY(path, totalLength, targetY) {
+  let low = 0;
+  let high = totalLength;
+
+  for (let i = 0; i < 24; i += 1) {
+    const mid = (low + high) / 2;
+    const point = path.getPointAtLength(mid);
+
+    if (point.y < targetY) {
+      low = mid;
+    } else {
+      high = mid;
+    }
+  }
+
+  return clamp((low + high) / 2, 1, totalLength);
+}
+
+function updateVineProgress() {
+  if (!vineState) return;
+
+  const {
+    basePath,
+    highlightPath,
+    tipGroup,
+    totalLength,
+    docHeight,
+    tipScale
+  } = vineState;
+
+  const scrollTop = window.scrollY;
+  const targetY = scrollTop + (window.innerHeight * 0.5);
+  const drawLength = getPathLengthAtY(basePath, totalLength, targetY);
+  const dashOffset = Math.max(0, totalLength - drawLength);
+
+  basePath.style.strokeDashoffset = String(dashOffset);
+  highlightPath.style.strokeDashoffset = String(dashOffset);
+
+  const pointLength = clamp(drawLength, 1, totalLength);
+  const tipPoint = basePath.getPointAtLength(pointLength);
+  const aheadPoint = basePath.getPointAtLength(clamp(pointLength + 12, 1, totalLength));
+  const angle = Math.atan2(aheadPoint.y - tipPoint.y, aheadPoint.x - tipPoint.x) * (180 / Math.PI);
+
+  tipGroup.setAttribute(
+    "transform",
+    `translate(${tipPoint.x} ${tipPoint.y}) rotate(${angle}) scale(${tipScale})`
+  );
+  tipGroup.style.opacity = "1";
+
+  if (docHeight !== document.documentElement.scrollHeight) {
+    buildVineTimeline();
+  }
+}
+
+function scheduleVineUpdate() {
+  if (vineRafId) return;
+
+  vineRafId = window.requestAnimationFrame(() => {
+    vineRafId = 0;
+    updateVineProgress();
+  });
+}
+
+function buildVineTimeline() {
+  const svgNS = "http://www.w3.org/2000/svg";
+  const vineScale = clamp(VINE_SIZE.vine, 0.4, 3);
+  const tipScale = VINE_BASE_TIP_SCALE * vineScale * clamp(VINE_SIZE.tip, 0.4, 3);
+  const width = window.innerWidth;
+  const docHeight = document.documentElement.scrollHeight;
+  const pathData = buildVinePath(width, docHeight);
+
+  let svg = document.getElementById(VINE_TIMELINE_ID);
+  if (!svg) {
+    svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("id", VINE_TIMELINE_ID);
+    svg.setAttribute("aria-hidden", "true");
+    document.body.prepend(svg);
+  }
+
+  svg.setAttribute("viewBox", `0 0 ${width} ${docHeight}`);
+  svg.setAttribute("width", String(width));
+  svg.setAttribute("height", String(docHeight));
+
+  svg.innerHTML = `
+    <path class="vine-base" d="${pathData}"></path>
+    <path class="vine-highlight" d="${pathData}"></path>
+    <g class="vine-tip" opacity="0">
+      <g class="vine-tip-art">
+        <ellipse class="vine-tip-bud" cx="14" cy="0" rx="14" ry="10.5"></ellipse>
+        <ellipse class="vine-tip-bud-highlight" cx="18" cy="-2.5" rx="5.25" ry="3.5"></ellipse>
+      </g>
+    </g>
+  `;
+
+  const basePath = svg.querySelector(".vine-base");
+  const highlightPath = svg.querySelector(".vine-highlight");
+  const tipGroup = svg.querySelector(".vine-tip");
+
+  const totalLength = basePath.getTotalLength();
+  const dasharray = `${totalLength}`;
+
+  basePath.style.strokeWidth = `${6 * vineScale}`;
+  highlightPath.style.strokeWidth = `${5.25 * vineScale}`;
+
+  basePath.style.strokeDasharray = dasharray;
+  basePath.style.strokeDashoffset = dasharray;
+  highlightPath.style.strokeDasharray = dasharray;
+  highlightPath.style.strokeDashoffset = dasharray;
+
+  vineState = {
+    basePath,
+    highlightPath,
+    tipGroup,
+    totalLength,
+    docHeight,
+    tipScale
+  };
+
+  scheduleVineUpdate();
+}
+
+function initializeVineTimeline() {
+  buildVineTimeline();
+
+  window.addEventListener("scroll", scheduleVineUpdate, { passive: true });
+  window.addEventListener("resize", buildVineTimeline);
+
+  if ("ResizeObserver" in window) {
+    const resizeObserver = new ResizeObserver(() => {
+      buildVineTimeline();
+    });
+    resizeObserver.observe(document.body);
+  }
 }
 
 function completeAnimationWithoutJump(section, stickyVideo) {
@@ -307,3 +509,5 @@ Object.entries(setsData).forEach(([, setData], index) => {
   setsRoot.appendChild(section);
   initializeSetSection(section, setData);
 });
+
+initializeVineTimeline();
