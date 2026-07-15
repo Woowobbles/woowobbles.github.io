@@ -9,24 +9,46 @@ const setsRoot = document.getElementById("setsRoot");
 const setsData = {
   baseSetShadowless1st: {
     title: "Base Set | Shadowless 1st Edition",
-    subtitle: "Date goes here",
+    subtitle: "9 Jan 1999",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     videoSrc: "images/Base set pack.webm",
     cards: [
-      { imgurl: "images/1.1 BS1_Bulb.png", number: "1/3" },
-      { imgurl: "images/1.2 BS1_Ivy.png", number: "2/3" },
-      { imgurl: "images/1.3 BS1_Ven.png", number: "3/3" }
+      { imgurl: "images/1.1 BS1_Bulb.png", number: "44/102" },
+      { imgurl: "images/1.2 BS1_Ivy.png", number: "30/102" },
+      { imgurl: "images/1.3 BS1_Ven.png", number: "15/102" }
     ]
   },
     baseSetShadowless: {
     title: "Base Set | Shadowless",
-    subtitle: "Date goes here",
+    subtitle: "Feb 1999 (estimated)",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     videoSrc: "images/Base set pack.webm",
     cards: [
-      { imgurl: "images/1.1 BS1_Bulb.png", number: "1/3" },
-      { imgurl: "images/1.2 BS1_Ivy.png", number: "2/3" },
-      { imgurl: "images/1.3 BS1_Ven.png", number: "3/3" }
+      { imgurl: "images/2.1 BSS_Bulb.png", number: "44/102" },
+      { imgurl: "images/2.2 BSS_Ivy.png", number: "30/102" },
+      { imgurl: "images/2.3 BSS_Ven.png", number: "15/102" }
+    ]
+  },
+    baseSet: {
+    title: "Base Set | Unlimited",
+    subtitle: "Apr 1999 (estimated)",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    videoSrc: "images/Base set pack.webm",
+    cards: [
+      { imgurl: "images/3.1 BS_Bulb.png", number: "44/102" },
+      { imgurl: "images/3.2 BS_Ivy.png", number: "30/102" },
+      { imgurl: "images/3.3 BS_Ven.png", number: "15/102" }
+    ]
+  },
+    baseSetUK: {
+    title: "Base Set | 4th/UK Print",
+    subtitle: "Jan 2000 (estimated)",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    videoSrc: "images/Base set pack.webm",
+    cards: [
+      { imgurl: "images/4.1 UK_Bulb.png", number: "44/102" },
+      { imgurl: "images/4.2 UK_Ivy.png", number: "30/102" },
+      { imgurl: "images/4.3 UK_Ven.png", number: "15/102" }
     ]
   }
 };
