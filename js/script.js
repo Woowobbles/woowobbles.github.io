@@ -83,8 +83,36 @@ function initializeSetSection(section, setData) {
   const cardsTitle = section.querySelector(".cards-title");
   const cardsSubtitle = section.querySelector(".cards-subtitle");
   const cardsDescription = section.querySelector(".cards-description");
+  const hasVideo = typeof setData.videoSrc === "string" && setData.videoSrc.trim() !== "";
 
   let played = false;
+
+  function revealCardsWithoutVideo() {
+    const cards = Array.from(cardsContainer.querySelectorAll(".card-item"));
+    cardsContainer.style.visibility = "visible";
+
+    cards.forEach(card => {
+      card.style.opacity = "0";
+      card.style.transform = "translateY(10px)";
+      card.style.transition = "none";
+    });
+
+    requestAnimationFrame(() => {
+      cards.forEach((card, index) => {
+        card.style.transition = `opacity 420ms ease, transform 420ms ease`;
+        card.style.transitionDelay = `${index * 40}ms`;
+        card.style.opacity = "1";
+        card.style.transform = "none";
+      });
+    });
+
+    setTimeout(() => {
+      cards.forEach(card => {
+        card.style.transitionDelay = "0ms";
+      });
+      completeAnimationWithoutJump(section, stickyVideo);
+    }, 420 + (cards.length * 40));
+  }
 
   function prepareFanOutCards() {
     const items = Array.from(cardsContainer.querySelectorAll(".card-item"));
@@ -134,7 +162,14 @@ function initializeSetSection(section, setData) {
   }
 
   function renderCards() {
-    video.src = setData.videoSrc;
+    if (hasVideo) {
+      video.src = setData.videoSrc;
+      video.classList.remove("is-hidden");
+    } else {
+      video.removeAttribute("src");
+      video.classList.add("is-hidden");
+    }
+
     cardsContainer.style.visibility = "hidden";
     cardsContainer.innerHTML = "";
     cardsTitle.textContent = setData.title;
@@ -166,7 +201,11 @@ function initializeSetSection(section, setData) {
       const onLoad = () => {
         loadedImages += 1;
         if (loadedImages === totalImages) {
-          requestAnimationFrame(() => requestAnimationFrame(prepareFanOutCards));
+          if (hasVideo) {
+            requestAnimationFrame(() => requestAnimationFrame(prepareFanOutCards));
+          } else {
+            requestAnimationFrame(() => requestAnimationFrame(revealCardsWithoutVideo));
+          }
         }
       };
 
@@ -216,23 +255,26 @@ function initializeSetSection(section, setData) {
     }, STACK_LIFT_DURATION_MS + VIDEO_EXIT_DURATION_MS + FAN_OUT_DURATION_MS);
   });
 
-  video.addEventListener("loadeddata", () => {
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting && !played) {
-          document.body.classList.add("is-locked");
-          document.addEventListener("wheel", preventScroll, { passive: false });
-          document.addEventListener("touchmove", preventScroll, { passive: false });
-          video.play();
-          played = true;
-        }
-      });
-    }, {
-      threshold: 0.5
-    });
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting || played) return;
 
-    observer.observe(section);
+      played = true;
+
+      if (!hasVideo) {
+        return;
+      }
+
+      document.body.classList.add("is-locked");
+      document.addEventListener("wheel", preventScroll, { passive: false });
+      document.addEventListener("touchmove", preventScroll, { passive: false });
+      video.play();
+    });
+  }, {
+    threshold: 0.5
   });
+
+  observer.observe(section);
 
   renderCards();
 }

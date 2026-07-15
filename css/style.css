@@ -1,6 +1,14 @@
 :root {
-  --set-section-height: 80vh;
+  --set-section-height: 60vh;
   --set-media-start-top: 47%;
+  --header-font-size: 1.5rem;
+  --subtitle-font-size: 0.8rem;
+  --paragraph-font-size: 0.95rem;
+  --card-number-font-size: 0.9rem;
+  --header-text-color: #111;
+  --subtitle-text-color: #666;
+  --paragraph-text-color: #444;
+  --card-number-text-color: #333;
 }
 
 html,
@@ -10,7 +18,7 @@ body {
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: "Montserrat", sans-serif;
   scrollbar-gutter: stable;
 }
 
@@ -100,7 +108,8 @@ body.is-locked {
 
 .cards-title {
   margin: 0 0 10px 0;
-  font-size: 2.0rem;
+  font-size: var(--header-font-size);
+  color: var(--header-text-color);
   flex-shrink: 0;
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -108,8 +117,8 @@ body.is-locked {
 
 .cards-subtitle {
   margin: 0;
-  font-size: 1rem;
-  color: #666;
+  font-size: var(--subtitle-font-size);
+  color: var(--subtitle-text-color);
   flex-shrink: 0;
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -117,9 +126,9 @@ body.is-locked {
 
 .cards-description {
   margin: 14px 0 0 0;
-  font-size: 0.95rem;
+  font-size: var(--paragraph-font-size);
   line-height: 1.5;
-  color: #444;
+  color: var(--paragraph-text-color);
   width: 100%;
   max-width: none;
   text-align: left;
@@ -146,6 +155,10 @@ body.is-locked {
   right: 0;
   top: var(--set-media-start-top);
   transform: translateY(-50%);
+}
+
+.set-column video.is-hidden {
+  display: none;
 }
 
 .video-section.content-right .set-column video {
@@ -206,8 +219,8 @@ body.is-locked {
 .card-number {
   display: block;
   opacity: 0;
-  font-size: 0.9rem;
-  color: #333;
+  font-size: var(--card-number-font-size);
+  color: var(--card-number-text-color);
   transition: opacity 0.2s ease, transform 0.2s ease;
   transform: translateY(4px);
 }
