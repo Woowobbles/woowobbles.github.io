@@ -11,7 +11,7 @@ const VINE_SIZE = {
   // Global scale for the vine body and its motion profile.
   vine: 1,
   // Additional multiplier for the bud relative to the vine.
-  tip: 0.05
+  tip: 0.6
 };
 const VINE_BASE_TIP_SCALE = 2.1;
 let vineState = null;
@@ -211,9 +211,14 @@ function buildVineTimeline() {
     <path class="vine-base" d="${pathData}"></path>
     <path class="vine-highlight" d="${pathData}"></path>
     <g class="vine-tip" opacity="0">
-      <g class="vine-tip-art">
-        <ellipse class="vine-tip-bud" cx="14" cy="0" rx="14" ry="10.5"></ellipse>
-        <ellipse class="vine-tip-bud-highlight" cx="18" cy="-2.5" rx="5.25" ry="3.5"></ellipse>
+      <g class="vine-tip-art" transform="translate(-2 0)">
+        <path
+          class="vine-tip-bud"
+          d="M 2 0 C 5 -6, 13 -8, 21 -5 C 27 -3, 30 0, 31 0 C 30 0, 27 3, 21 5 C 13 8, 5 6, 2 0 Z"
+        ></path>
+        <ellipse class="vine-tip-join-cover" cx="2.2" cy="0" rx="2.6" ry="3.1"></ellipse>
+        <path class="vine-tip-bud-highlight" d="M 9 -1 C 13 -4, 19 -4, 23 -2 C 19 -1, 14 0, 10 0 Z"></path>
+        <path class="vine-tip-bud-vein" d="M 6 0 C 11 -1, 18 -1, 25 0"></path>
       </g>
     </g>
   `;
@@ -225,8 +230,8 @@ function buildVineTimeline() {
   const totalLength = basePath.getTotalLength();
   const dasharray = `${totalLength}`;
 
-  basePath.style.strokeWidth = `${6 * vineScale}`;
-  highlightPath.style.strokeWidth = `${5.25 * vineScale}`;
+  basePath.style.strokeWidth = `${9 * vineScale}`;
+  highlightPath.style.strokeWidth = `${5.4 * vineScale}`;
 
   basePath.style.strokeDasharray = dasharray;
   basePath.style.strokeDashoffset = dasharray;

@@ -40,31 +40,45 @@ body {
 
 #vineTimeline .vine-base {
   fill: none;
-  stroke: #172823;
-  stroke-width: 6;
+  stroke: #3f4333;
+  stroke-width: 8;
   stroke-linecap: round;
   stroke-linejoin: round;
-  opacity: 0.85;
+  opacity: 1;
 }
 
 #vineTimeline .vine-highlight {
   fill: none;
-  stroke: #2C5C47;
+  stroke: #8a8751;
   stroke-width: 5.25;
   stroke-linecap: round;
   stroke-linejoin: round;
-  opacity: 0.82;
+  opacity: 1;
 }
 
 #vineTimeline .vine-tip-bud {
-  fill: #2C5C47;
-  /* stroke: #172823; */
-  stroke-width: 1.25;
+  fill: #8a8751;
+  stroke: #3f4333;
+  stroke-width: 1.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 #vineTimeline .vine-tip-bud-highlight {
-  fill: #3E6E58;
-  opacity: 0.9;
+  fill: #a3a06a;
+  opacity: 0.65;
+}
+
+#vineTimeline .vine-tip-join-cover {
+  fill: #8a8751;
+}
+
+#vineTimeline .vine-tip-bud-vein {
+  fill: none;
+  stroke: #4e5137;
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.8;
 }
 
 #vineTimeline .vine-tip {
