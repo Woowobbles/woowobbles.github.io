@@ -1,3 +1,13 @@
+:root {
+  --set-section-height: 80vh;
+  --set-media-start-top: 47%;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -12,8 +22,18 @@ body.is-locked {
   height: 100vh;
 }
 
+.intro-spacer {
+  display: grid;
+  place-items: center;
+}
+
+.intro-spacer h1 {
+  margin: 0;
+  text-align: center;
+}
+
 .video-section {
-  height: 200vh;
+  height: var(--set-section-height);
 }
 
 .sticky-video {
@@ -32,7 +52,7 @@ body.is-locked {
   box-sizing: border-box;
 }
 
-body.animation-complete .sticky-video {
+.video-section.animation-complete .sticky-video {
   position: relative;
   top: auto;
   height: auto;
@@ -45,6 +65,15 @@ body.animation-complete .sticky-video {
   min-height: 0;
 }
 
+.set-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  position: relative;
+  padding-top: 40px;
+}
+
 .cards-container {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -53,20 +82,20 @@ body.animation-complete .sticky-video {
   justify-items: center;
 }
 
-.left-column {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  position: relative;
-  padding-top: 40px;
-  text-align: right;
-}
-
 .text-header {
   width: 100%;
   margin-bottom: 40px;
   
+}
+
+.video-section.content-left .cards-title,
+.video-section.content-left .cards-subtitle {
+  text-align: right;
+}
+
+.video-section.content-right .cards-title,
+.video-section.content-right .cards-subtitle {
+  text-align: left;
 }
 
 .cards-title {
@@ -86,8 +115,21 @@ body.animation-complete .sticky-video {
   transition: opacity 0.4s ease;
 }
 
-.animation-complete .cards-title,
-.animation-complete .cards-subtitle {
+.cards-description {
+  margin: 14px 0 0 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #444;
+  width: 100%;
+  max-width: none;
+  text-align: left;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.video-section.animation-complete .cards-title,
+.video-section.animation-complete .cards-subtitle,
+.video-section.animation-complete .cards-description {
   opacity: 1;
 }
 
@@ -99,15 +141,25 @@ body.animation-complete .sticky-video {
   justify-items: center;
 }
 
-.left-column video {
+.set-column video {
   position: absolute;
   right: 0;
-  top: 50%;
+  top: var(--set-media-start-top);
   transform: translateY(-50%);
 }
 
-.left-column video.video-exit {
+.video-section.content-right .set-column video {
+  left: 0;
+  right: auto;
+  transform: translate(-10vw, -50%);
+}
+
+.set-column video.video-exit {
   transform: translateY(-50%) translateX(-120vw) rotate(-15deg) scale(0.8);
+}
+
+.video-section.content-right .set-column video.video-exit {
+  transform: translateY(-50%) translateX(120vw) rotate(15deg) scale(0.8);
 }
 
 .card-item {
