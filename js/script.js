@@ -4,6 +4,10 @@ const STACK_LIFT_MULTIPLIER = 1.2;
 const STACK_LIFT_DURATION_MS = 800;
 const FAN_OUT_DURATION_MS = 800;
 const VIDEO_EXIT_DURATION_MS = 300;
+const CARD_BACK_IMAGE_SRC = "images/Card Back.png";
+const CARD_MODAL_ANIMATION_MS = 1100;
+const CARD_MODAL_LIFT_PX = 42;
+const CARD_MODAL_SPIN_DEGREES = 360;
 const setsRoot = document.getElementById("setsRoot");
 
 const VINE_TIMELINE_ID = "vineTimeline";
@@ -14,8 +18,14 @@ const VINE_SIZE = {
   tip: 0.6
 };
 const VINE_BASE_TIP_SCALE = 2.1;
+const VINE_BASE_VIEWPORT = {
+  width: 1440,
+  height: 900
+};
 let vineState = null;
 let vineRafId = 0;
+let cardModalState = null;
+let activeCardModal = null;
 
 const setsData = {
   baseSetShadowless1st: {
@@ -72,6 +82,178 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
+function getResponsiveVineScale(width = window.innerWidth, height = window.innerHeight) {
+  const widthScale = width / VINE_BASE_VIEWPORT.width;
+  const heightScale = height / VINE_BASE_VIEWPORT.height;
+  const viewportScale = Math.min(widthScale, heightScale);
+
+  return clamp(viewportScale, 0.72, 1.35);
+}
+
+function getVineScale(width = window.innerWidth, height = window.innerHeight) {
+  return clamp(VINE_SIZE.vine, 0.4, 3) * getResponsiveVineScale(width, height);
+}
+
+function ensureCardModal() {
+  if (cardModalState) return cardModalState;
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "card-modal-backdrop";
+  backdrop.innerHTML = `
+    <div class="card-modal-panel" role="dialog" aria-modal="true" aria-label="Card details">
+      <button type="button" class="card-modal-close" aria-label="Close card modal">&times;</button>
+      <div class="card-modal-left">
+        <div class="card-modal-card-anchor"></div>
+      </div>
+      <div class="card-modal-right">
+        <h3 class="card-modal-title"></h3>
+        <p class="card-modal-number"></p>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(backdrop);
+
+  const closeButton = backdrop.querySelector(".card-modal-close");
+  const cardAnchor = backdrop.querySelector(".card-modal-card-anchor");
+  const title = backdrop.querySelector(".card-modal-title");
+  const number = backdrop.querySelector(".card-modal-number");
+
+  closeButton.addEventListener("click", () => {
+    closeCardModal();
+  });
+
+  backdrop.addEventListener("click", event => {
+    if (event.target === backdrop) {
+      closeCardModal();
+    }
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && activeCardModal) {
+      closeCardModal();
+    }
+  });
+
+  cardModalState = {
+    backdrop,
+    cardAnchor,
+    title,
+    number
+  };
+
+  return cardModalState;
+}
+
+function openCardModal(flipButton) {
+  if (!flipButton || activeCardModal) return;
+
+  const modal = ensureCardModal();
+  const sourceRect = flipButton.getBoundingClientRect();
+  const sourceImage = flipButton.querySelector(".card-face-front");
+
+  modal.title.textContent = sourceImage?.dataset.set || "Card";
+  modal.number.textContent = sourceImage?.dataset.number || "";
+
+  const floatingCard = flipButton.cloneNode(true);
+  floatingCard.classList.remove("is-spinning", "is-source-hidden");
+  floatingCard.classList.add("card-modal-floating");
+  floatingCard.style.left = `${sourceRect.left}px`;
+  floatingCard.style.top = `${sourceRect.top}px`;
+  floatingCard.style.width = `${sourceRect.width}px`;
+  floatingCard.style.height = `${sourceRect.height}px`;
+  floatingCard.style.transform = "rotateY(0deg)";
+
+  document.body.appendChild(floatingCard);
+  flipButton.classList.add("is-source-hidden");
+
+  document.body.classList.add("card-modal-open");
+  modal.backdrop.classList.add("is-open");
+
+  const anchorRect = modal.cardAnchor.getBoundingClientRect();
+  const targetWidth = sourceRect.width * 2;
+  const targetHeight = sourceRect.height * 2;
+  const targetLeft = anchorRect.left - (targetWidth / 2);
+  const targetTop = anchorRect.top - (targetHeight / 2) - CARD_MODAL_LIFT_PX;
+
+  activeCardModal = {
+    sourceFlipButton: flipButton,
+    floatingCard,
+    isAnimating: true
+  };
+
+  const openAnimation = floatingCard.animate([
+    {
+      left: `${sourceRect.left}px`,
+      top: `${sourceRect.top}px`,
+      width: `${sourceRect.width}px`,
+      height: `${sourceRect.height}px`,
+      transform: "rotateY(0deg)"
+    },
+    {
+      left: `${targetLeft}px`,
+      top: `${targetTop}px`,
+      width: `${targetWidth}px`,
+      height: `${targetHeight}px`,
+      transform: `rotateY(${CARD_MODAL_SPIN_DEGREES}deg)`
+    }
+  ], {
+    duration: CARD_MODAL_ANIMATION_MS,
+    easing: "cubic-bezier(0.22, 0.61, 0.36, 1)",
+    fill: "forwards"
+  });
+
+  openAnimation.addEventListener("finish", () => {
+    floatingCard.style.left = `${targetLeft}px`;
+    floatingCard.style.top = `${targetTop}px`;
+    floatingCard.style.width = `${targetWidth}px`;
+    floatingCard.style.height = `${targetHeight}px`;
+    floatingCard.style.transform = `rotateY(${CARD_MODAL_SPIN_DEGREES}deg)`;
+    if (activeCardModal) {
+      activeCardModal.isAnimating = false;
+    }
+  });
+}
+
+function closeCardModal() {
+  if (!activeCardModal || activeCardModal.isAnimating) return;
+
+  const { sourceFlipButton, floatingCard } = activeCardModal;
+  const sourceRect = sourceFlipButton.getBoundingClientRect();
+  const currentRect = floatingCard.getBoundingClientRect();
+
+  activeCardModal.isAnimating = true;
+  cardModalState.backdrop.classList.remove("is-open");
+
+  const closeAnimation = floatingCard.animate([
+    {
+      left: `${currentRect.left}px`,
+      top: `${currentRect.top}px`,
+      width: `${currentRect.width}px`,
+      height: `${currentRect.height}px`,
+      transform: `rotateY(${CARD_MODAL_SPIN_DEGREES}deg)`
+    },
+    {
+      left: `${sourceRect.left}px`,
+      top: `${sourceRect.top}px`,
+      width: `${sourceRect.width}px`,
+      height: `${sourceRect.height}px`,
+      transform: `rotateY(${CARD_MODAL_SPIN_DEGREES * 2}deg)`
+    }
+  ], {
+    duration: CARD_MODAL_ANIMATION_MS,
+    easing: "cubic-bezier(0.45, 0.02, 0.2, 1)",
+    fill: "forwards"
+  });
+
+  closeAnimation.addEventListener("finish", () => {
+    floatingCard.remove();
+    sourceFlipButton.classList.remove("is-source-hidden");
+    document.body.classList.remove("card-modal-open");
+    activeCardModal = null;
+  });
+}
+
 function buildSmoothPath(points, tension = 0.2) {
   if (points.length < 2) {
     return "";
@@ -101,10 +283,11 @@ function buildSmoothPath(points, tension = 0.2) {
 }
 
 function buildVinePath(width, height) {
-  const vineScale = clamp(VINE_SIZE.vine, 0.4, 3);
+  const vineScale = getVineScale(width, window.innerHeight);
   const baseX = width * 0.5;
   const step = 120 * vineScale;
-  const amplitude = clamp(width * 0.028 * vineScale, 12 * vineScale, 34 * vineScale);
+  const amplitude = clamp(width * 0.016 * vineScale, 7 * vineScale, 18 * vineScale);
+  const secondaryWaveRatio = 0.12;
   const extraLength = 200;
   const totalHeight = Math.max(height + extraLength, window.innerHeight + extraLength);
   const points = [];
@@ -113,7 +296,7 @@ function buildVinePath(width, height) {
     const phase = y / step;
     const x = baseX
       + Math.sin(phase * 0.85) * amplitude
-      + Math.sin(phase * 1.7) * (amplitude * 0.22);
+      + Math.sin(phase * 1.7) * (amplitude * secondaryWaveRatio);
     points.push({ x, y });
   }
 
@@ -189,7 +372,7 @@ function scheduleVineUpdate() {
 
 function buildVineTimeline() {
   const svgNS = "http://www.w3.org/2000/svg";
-  const vineScale = clamp(VINE_SIZE.vine, 0.4, 3);
+  const vineScale = getVineScale(window.innerWidth, window.innerHeight);
   const tipScale = VINE_BASE_TIP_SCALE * vineScale * clamp(VINE_SIZE.tip, 0.4, 3);
   const width = window.innerWidth;
   const docHeight = document.documentElement.scrollHeight;
@@ -316,6 +499,12 @@ function initializeSetSection(section, setData) {
 
   let played = false;
 
+  cardsContainer.addEventListener("click", event => {
+    const flipButton = event.target.closest(".card-flip");
+    if (!flipButton || !cardsContainer.contains(flipButton)) return;
+    openCardModal(flipButton);
+  });
+
   function revealCardsWithoutVideo() {
     const cards = Array.from(cardsContainer.querySelectorAll(".card-item"));
     cardsContainer.style.visibility = "visible";
@@ -412,18 +601,30 @@ function initializeSetSection(section, setData) {
       const item = document.createElement("div");
       item.className = "card-item";
 
-      const img = document.createElement("img");
-      img.className = "card-image";
-      img.src = card.imgurl;
-      img.alt = `${setData.title} card ${card.number}`;
-      img.dataset.set = setData.title;
-      img.dataset.number = card.number;
+      const flipButton = document.createElement("button");
+      flipButton.type = "button";
+      flipButton.className = "card-flip";
+      flipButton.setAttribute("aria-label", `Flip ${setData.title} card ${card.number}`);
+
+      const frontImg = document.createElement("img");
+      frontImg.className = "card-image card-face card-face-front";
+      frontImg.src = card.imgurl;
+      frontImg.alt = `${setData.title} card ${card.number}`;
+      frontImg.dataset.set = setData.title;
+      frontImg.dataset.number = card.number;
+
+      const backImg = document.createElement("img");
+      backImg.className = "card-image card-face card-face-back";
+      backImg.src = CARD_BACK_IMAGE_SRC;
+      backImg.alt = `Card back for ${setData.title} card ${card.number}`;
 
       const caption = document.createElement("span");
       caption.className = "card-number";
       caption.textContent = card.number;
 
-      item.appendChild(img);
+      flipButton.appendChild(frontImg);
+      flipButton.appendChild(backImg);
+      item.appendChild(flipButton);
       item.appendChild(caption);
       cardsContainer.appendChild(item);
 
@@ -438,11 +639,11 @@ function initializeSetSection(section, setData) {
         }
       };
 
-      if (img.complete && img.naturalWidth !== 0) {
+      if (frontImg.complete && frontImg.naturalWidth !== 0) {
         onLoad();
       } else {
-        img.addEventListener("load", onLoad);
-        img.addEventListener("error", onLoad);
+        frontImg.addEventListener("load", onLoad);
+        frontImg.addEventListener("error", onLoad);
       }
     });
   }
