@@ -96,6 +96,10 @@ body {
   z-index: 1;
 }
 
+#setsRoot > .video-section:first-child {
+  margin-top: 8vh;
+}
+
 .intro-spacer {
   display: grid;
   place-items: center;
@@ -104,6 +108,50 @@ body {
 .intro-spacer h1 {
   margin: 0;
   text-align: center;
+}
+
+.battle-scene {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--battle-scene-aspect-ratio, 16 / 9);
+  overflow: hidden;
+  background: #111;
+  z-index: 0;
+}
+
+.battle-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: top center;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: none;
+  max-height: none;
+}
+
+.vinewhip-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: top center;
+  transform-origin: center top;
+  transform: translateY(0);
+  z-index: 2;
+  pointer-events: none;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  max-height: none;
 }
 
 .video-section {
@@ -479,4 +527,16 @@ video {
 video.video-exit {
   transform: translateY(-50%) translateX(-120vw) rotate(-15deg) scale(0.8);
   opacity: 1;
+}
+
+.battle-video-section .battle-video {
+  position: static;
+  top: auto;
+  right: auto;
+  transform: none;
+  z-index: auto;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: cover;
 }

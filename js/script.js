@@ -9,6 +9,7 @@ const CARD_MODAL_ANIMATION_MS = 1100;
 const CARD_MODAL_LIFT_PX = 42;
 const CARD_MODAL_SPIN_DEGREES = 360;
 const setsRoot = document.getElementById("setsRoot");
+const battleScene = document.getElementById("battleScene");
 
 const VINE_TIMELINE_ID = "vineTimeline";
 const VINE_SIZE = {
@@ -290,9 +291,16 @@ function buildVinePath(width, height) {
   const secondaryWaveRatio = 0.12;
   const extraLength = 200;
   const totalHeight = Math.max(height + extraLength, window.innerHeight + extraLength);
-  const points = [];
+  const battleSceneBottom = battleScene ? battleScene.offsetTop + battleScene.offsetHeight : 0;
+  const startY = Math.max(0, battleSceneBottom - 52);
+  const straightSegmentHeight = 50;
+  const straightEndY = Math.min(totalHeight, startY + straightSegmentHeight);
+  const points = [
+    { x: baseX, y: startY },
+    { x: baseX, y: straightEndY }
+  ];
 
-  for (let y = -60; y <= totalHeight; y += step) {
+  for (let y = straightEndY + step; y <= totalHeight; y += step) {
     const phase = y / step;
     const x = baseX
       + Math.sin(phase * 0.85) * amplitude
@@ -301,7 +309,7 @@ function buildVinePath(width, height) {
   }
 
   if (points.length < 2) {
-    return `M ${baseX} -60 L ${baseX} ${totalHeight}`;
+    return `M ${baseX} ${startY} L ${baseX} ${totalHeight}`;
   }
 
   return buildSmoothPath(points, 1.05);
@@ -445,6 +453,72 @@ function initializeVineTimeline() {
     });
     resizeObserver.observe(document.body);
   }
+}
+
+function initializeBattleScene() {
+  if (!battleScene) return;
+
+  const vinewhipVideo = battleScene.querySelector(".vinewhip-video");
+
+  if (!vinewhipVideo) return;
+
+  let battleSceneScrollRafId = 0;
+  const battleScenePlaybackMultiplier = 1.35;
+
+  const setBattleSceneHeight = () => {
+    if (vinewhipVideo.videoWidth > 0 && vinewhipVideo.videoHeight > 0) {
+      const sceneWidth = battleScene.clientWidth || window.innerWidth;
+      const sceneHeight = (sceneWidth * vinewhipVideo.videoHeight / vinewhipVideo.videoWidth);
+      battleScene.style.height = `${Math.max(1, Math.round(sceneHeight))}px`;
+    }
+  };
+
+  const updateBattleSceneFromScroll = () => {
+    battleSceneScrollRafId = 0;
+
+    if (!Number.isFinite(vinewhipVideo.duration) || vinewhipVideo.duration <= 0) return;
+
+    const rect = battleScene.getBoundingClientRect();
+    const progress = clamp(((window.innerHeight - rect.top) / (window.innerHeight + rect.height)) * battleScenePlaybackMultiplier, 0, 1);
+    const finalTime = Math.max(0, vinewhipVideo.duration - 0.04);
+    const targetTime = progress >= 1 ? finalTime : progress * finalTime;
+
+    if (Math.abs(vinewhipVideo.currentTime - targetTime) > 0.03) {
+      vinewhipVideo.currentTime = targetTime;
+    }
+
+    if (progress >= 1) {
+      vinewhipVideo.pause();
+      vinewhipVideo.currentTime = finalTime;
+    }
+  };
+
+  const scheduleBattleSceneUpdate = () => {
+    if (battleSceneScrollRafId) return;
+    battleSceneScrollRafId = window.requestAnimationFrame(updateBattleSceneFromScroll);
+  };
+
+  const onMetadataLoaded = () => {
+    setBattleSceneHeight();
+    vinewhipVideo.pause();
+    vinewhipVideo.currentTime = 0;
+    scheduleBattleSceneUpdate();
+  };
+
+  if (vinewhipVideo.readyState >= 1) {
+    onMetadataLoaded();
+  } else {
+    vinewhipVideo.addEventListener("loadedmetadata", onMetadataLoaded, { once: true });
+  }
+
+  window.addEventListener("resize", () => {
+    if (vinewhipVideo.readyState >= 1) {
+      setBattleSceneHeight();
+      scheduleBattleSceneUpdate();
+    }
+  });
+
+  window.addEventListener("scroll", scheduleBattleSceneUpdate, { passive: true });
 }
 
 function completeAnimationWithoutJump(section, stickyVideo) {
@@ -649,10 +723,6 @@ function initializeSetSection(section, setData) {
   }
 
   video.addEventListener("ended", () => {
-    document.body.classList.remove("is-locked");
-    document.removeEventListener("wheel", preventScroll);
-    document.removeEventListener("touchmove", preventScroll);
-
     const cards = cardsContainer.querySelectorAll(".card-item");
     cards.forEach(card => {
       card.classList.remove("no-transition");
@@ -695,9 +765,6 @@ function initializeSetSection(section, setData) {
         return;
       }
 
-      document.body.classList.add("is-locked");
-      document.addEventListener("wheel", preventScroll, { passive: false });
-      document.addEventListener("touchmove", preventScroll, { passive: false });
       video.play();
     });
   }, {
@@ -716,4 +783,5 @@ Object.entries(setsData).forEach(([, setData], index) => {
   initializeSetSection(section, setData);
 });
 
+initializeBattleScene();
 initializeVineTimeline();
