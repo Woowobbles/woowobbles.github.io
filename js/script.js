@@ -16,13 +16,15 @@ const RARITY_ICON_SRC = {
 const CARD_MODAL_ANIMATION_MS = 1100;
 const CARD_MODAL_LIFT_PX = 42;
 const CARD_MODAL_SPIN_DEGREES = 360;
+const INTRO_VINEWHIP_AUTOPLAY_DELAY_MS = 100;
+const VINE_START_BELOW_BATTLE_OFFSET_PX = -25;
 const setsRoot = document.getElementById("setsRoot");
 const battleScene = document.getElementById("battleScene");
 
 const VINE_TIMELINE_ID = "vineTimeline";
 const VINE_SIZE = {
   // Global scale for the vine body and its motion profile.
-  vine: 1,
+  vine: 1.6,
   // Additional multiplier for the bud relative to the vine.
   tip: 0.6
 };
@@ -35,6 +37,17 @@ let vineState = null;
 let vineRafId = 0;
 let cardModalState = null;
 let activeCardModal = null;
+let onScrollLockAttempt = null;
+const SCROLL_LOCK_KEYS = new Set([
+  "ArrowUp",
+  "ArrowDown",
+  "PageUp",
+  "PageDown",
+  "Home",
+  "End",
+  " ",
+  "Spacebar"
+]);
 
 const setsData = {
   baseSetShadowless1st: {
@@ -105,7 +118,128 @@ const setsData = {
 };
 
 function preventScroll(e) {
+  if (typeof onScrollLockAttempt === "function") {
+    onScrollLockAttempt();
+  }
+
   e.preventDefault();
+}
+
+function preventScrollKeys(event) {
+  if (!SCROLL_LOCK_KEYS.has(event.key)) return;
+
+  if (typeof onScrollLockAttempt === "function") {
+    onScrollLockAttempt();
+  }
+
+  event.preventDefault();
+}
+
+function lockPageScroll(onAttempt) {
+  onScrollLockAttempt = typeof onAttempt === "function" ? onAttempt : null;
+  document.body.classList.add("scroll-locked");
+  document.addEventListener("wheel", preventScroll, { passive: false });
+  document.addEventListener("touchmove", preventScroll, { passive: false });
+  document.addEventListener("keydown", preventScrollKeys, { passive: false });
+}
+
+function unlockPageScroll() {
+  document.body.classList.remove("scroll-locked");
+  onScrollLockAttempt = null;
+  document.removeEventListener("wheel", preventScroll);
+  document.removeEventListener("touchmove", preventScroll);
+  document.removeEventListener("keydown", preventScrollKeys);
+}
+
+function initializeWipeawayScrollGate() {
+  const wipeawayVideo = document.querySelector(".wipeaway-video");
+  const introVinewhipVideo = battleScene?.querySelector(".vinewhip-video");
+
+  if (!wipeawayVideo) return;
+
+  let phase = "wipeaway";
+  let wipeawayStarted = false;
+  let vinewhipAutoplayScheduled = false;
+  const unlock = () => {
+    if (phase === "done") return;
+    phase = "done";
+    unlockPageScroll();
+  };
+
+  const scheduleVinewhipAutoplay = () => {
+    if (!introVinewhipVideo) {
+      unlock();
+      return;
+    }
+
+    if (vinewhipAutoplayScheduled || phase === "done") return;
+
+    vinewhipAutoplayScheduled = true;
+    window.setTimeout(() => {
+      if (phase === "done") return;
+
+      introVinewhipVideo.play().catch(() => {
+        unlock();
+      });
+    }, INTRO_VINEWHIP_AUTOPLAY_DELAY_MS);
+  };
+
+  const startPlayback = () => {
+    if (phase === "done") return;
+
+    if (phase === "vinewhip") {
+      return;
+    }
+
+    if (wipeawayStarted) return;
+    wipeawayStarted = true;
+
+    wipeawayVideo.play().catch(() => {
+      unlock();
+    });
+  };
+
+  lockPageScroll(startPlayback);
+  window.scrollTo(0, 0);
+
+  wipeawayVideo.loop = false;
+  wipeawayVideo.pause();
+  wipeawayVideo.currentTime = 0;
+
+  if (introVinewhipVideo) {
+    introVinewhipVideo.pause();
+    introVinewhipVideo.currentTime = 0;
+  }
+
+  if (wipeawayVideo.ended) {
+    phase = "vinewhip";
+    scheduleVinewhipAutoplay();
+    return;
+  }
+
+  wipeawayVideo.addEventListener("ended", () => {
+    phase = "vinewhip";
+    scheduleVinewhipAutoplay();
+  }, { once: true });
+
+  wipeawayVideo.addEventListener("error", unlock, { once: true });
+
+  if (introVinewhipVideo) {
+    introVinewhipVideo.addEventListener("ended", unlock, { once: true });
+    introVinewhipVideo.addEventListener("error", unlock, { once: true });
+  }
+
+  wipeawayVideo.addEventListener("loadedmetadata", () => {
+    if (!wipeawayStarted) {
+      wipeawayVideo.currentTime = 0;
+    }
+  }, { once: true });
+
+  introVinewhipVideo?.addEventListener("loadedmetadata", () => {
+    if (phase !== "done") {
+      introVinewhipVideo.currentTime = 0;
+    }
+  }, { once: true });
 }
 
 function clamp(value, min, max) {
@@ -445,9 +579,11 @@ function buildVinePath(width, height) {
   const secondaryWaveRatio = 0.12;
   const extraLength = 200;
   const totalHeight = Math.max(height + extraLength, window.innerHeight + extraLength);
-  const battleSceneBottom = battleScene ? battleScene.offsetTop + battleScene.offsetHeight : 0;
-  const startY = Math.max(0, battleSceneBottom - 52);
-  const straightSegmentHeight = 50;
+  const battleSceneBottom = battleScene
+    ? battleScene.offsetTop + battleScene.offsetHeight
+    : window.innerHeight;
+  const startY = Math.max(0, battleSceneBottom + VINE_START_BELOW_BATTLE_OFFSET_PX);
+  const straightSegmentHeight = 300;
   const straightEndY = Math.min(totalHeight, startY + straightSegmentHeight);
   const points = [
     { x: baseX, y: startY },
@@ -561,7 +697,7 @@ function buildVineTimeline() {
           class="vine-tip-bud"
           d="M 2 0 C 5 -6, 13 -8, 21 -5 C 27 -3, 30 0, 31 0 C 30 0, 27 3, 21 5 C 13 8, 5 6, 2 0 Z"
         ></path>
-        <ellipse class="vine-tip-join-cover" cx="2.2" cy="0" rx="2.6" ry="3.1"></ellipse>
+        <ellipse class="vine-tip-join-cover" cx="2.2" cy="0" rx="2.0" ry="2.0"></ellipse>
         <path class="vine-tip-bud-highlight" d="M 9 -1 C 13 -4, 19 -4, 23 -2 C 19 -1, 14 0, 10 0 Z"></path>
         <path class="vine-tip-bud-vein" d="M 6 0 C 11 -1, 18 -1, 25 0"></path>
       </g>
@@ -575,7 +711,7 @@ function buildVineTimeline() {
   const totalLength = basePath.getTotalLength();
   const dasharray = `${totalLength}`;
 
-  basePath.style.strokeWidth = `${9 * vineScale}`;
+  basePath.style.strokeWidth = `${8 * vineScale}`;
   highlightPath.style.strokeWidth = `${5.4 * vineScale}`;
 
   basePath.style.strokeDasharray = dasharray;
@@ -618,8 +754,14 @@ function initializeBattleScene() {
 
   let battleSceneScrollRafId = 0;
   const battleScenePlaybackMultiplier = 1.35;
+  const isEmbeddedInWipeaway = Boolean(battleScene.closest(".wipeaway-section"));
 
   const setBattleSceneHeight = () => {
+    if (isEmbeddedInWipeaway) {
+      battleScene.style.height = "100%";
+      return;
+    }
+
     if (vinewhipVideo.videoWidth > 0 && vinewhipVideo.videoHeight > 0) {
       const sceneWidth = battleScene.clientWidth || window.innerWidth;
       const sceneHeight = (sceneWidth * vinewhipVideo.videoHeight / vinewhipVideo.videoWidth);
@@ -656,6 +798,11 @@ function initializeBattleScene() {
     setBattleSceneHeight();
     vinewhipVideo.pause();
     vinewhipVideo.currentTime = 0;
+
+    if (isEmbeddedInWipeaway) {
+      return;
+    }
+
     scheduleBattleSceneUpdate();
   };
 
@@ -668,9 +815,18 @@ function initializeBattleScene() {
   window.addEventListener("resize", () => {
     if (vinewhipVideo.readyState >= 1) {
       setBattleSceneHeight();
+
+      if (isEmbeddedInWipeaway) {
+        return;
+      }
+
       scheduleBattleSceneUpdate();
     }
   });
+
+  if (isEmbeddedInWipeaway) {
+    return;
+  }
 
   window.addEventListener("scroll", scheduleBattleSceneUpdate, { passive: true });
 }
@@ -962,3 +1118,4 @@ Object.entries(setsData).forEach(([, setData], index) => {
 
 initializeBattleScene();
 initializeVineTimeline();
+initializeWipeawayScrollGate();
