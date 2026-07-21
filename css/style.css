@@ -112,7 +112,8 @@ body {
 
 .battle-scene {
   position: relative;
-  width: 100%;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
   aspect-ratio: var(--battle-scene-aspect-ratio, 16 / 9);
   overflow: hidden;
   background: #111;
