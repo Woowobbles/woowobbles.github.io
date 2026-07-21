@@ -1,10 +1,18 @@
 const ORIGIN_X_FINE_TUNE_PX = 1.5;
 const ORIGIN_Y_FINE_TUNE_PX = 6;
 const STACK_LIFT_MULTIPLIER = 1.2;
-const STACK_LIFT_DURATION_MS = 800;
-const FAN_OUT_DURATION_MS = 800;
-const VIDEO_EXIT_DURATION_MS = 300;
-const CARD_BACK_IMAGE_SRC = "images/Card Back.png";
+const STACK_LIFT_DURATION_MS = 600;
+const FAN_OUT_DURATION_MS = 750;
+const VIDEO_EXIT_DURATION_MS = 225;
+const CARD_BACK_IMAGE_SRC = "images/Cards/Card Back.png";
+const EBAY_LOGO_SRC = "images/Other images/ebay.png";
+const CARDMARKET_LOGO_SRC = "images/Other images/cardmarket.png";
+const RARITY_ICON_SRC = {
+  common: "images/Rarity/Common.png",
+  uncommon: "images/Rarity/Uncommon.png",
+  rare: "images/Rarity/Rare.png",
+  "holo rare": "images/Rarity/holo_rare.png"
+};
 const CARD_MODAL_ANIMATION_MS = 1100;
 const CARD_MODAL_LIFT_PX = 42;
 const CARD_MODAL_SPIN_DEGREES = 360;
@@ -33,44 +41,65 @@ const setsData = {
     title: "Base Set | Shadowless 1st Edition",
     subtitle: "9 Jan 1999",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    videoSrc: "images/Base set pack.webm",
+    videoSrc: "images/Animations/Base set pack.webm",
     cards: [
-      { imgurl: "images/1.1 BS1_Bulb.png", number: "44/102" },
-      { imgurl: "images/1.2 BS1_Ivy.png", number: "30/102" },
-      { imgurl: "images/1.3 BS1_Ven.png", number: "15/102" }
+      { imgurl: "images/Cards/1.1 BS1_Bulb.png", number: "44/102", rarity: "Common", illustrator: "Mitsuhiro Arita",
+          ebay:"https://www.ebay.com/sch/i.html?_nkw=bulbasaur+44%2F102+%281st%2Cfirst%29+edition", 
+          cardmarket:"https://www.cardmarket.com/en/Pokemon/Products/Singles/Base-Set/Bulbasaur-V2-BS44?language=1&minCondition=4&isFirstEd=Y"
+        },
+      { imgurl: "images/Cards/1.2 BS1_Ivy.png", number: "30/102", rarity: "Uncommon", illustrator: "Mitsuhiro Arita",
+          ebay:"https://www.ebay.com/sch/i.html?_nkw=ivysaur+30%2F102+%281st%2Cfirst%29+edition",
+          cardmarket:"https://www.cardmarket.com/en/Pokemon/Products/Singles/Base-Set/Ivysaur-V2-BS30?language=1&minCondition=4&isFirstEd=Y"
+       },
+      { imgurl: "images/Cards/1.3 BS1_Ven.webm", number: "15/102", rarity: "Rare", illustrator: "Mitsuhiro Arita",
+          ebay:"https://www.ebay.com/sch/i.html?_nkw=venusaur+15%2F102+%281st%2Cfirst%29+edition",
+          cardmarket:"https://www.cardmarket.com/en/Pokemon/Products/Singles/Base-Set/Venusaur-V2-BS15?language=1&minCondition=4&isFirstEd=Y"
+       }
     ]
   },
     baseSetShadowless: {
     title: "Base Set | Shadowless",
     subtitle: "Feb 1999 (estimated)",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    videoSrc: "images/Base set pack.webm",
+    videoSrc: "images/Animations/Base set pack.webm",
     cards: [
-      { imgurl: "images/2.1 BSS_Bulb.png", number: "44/102" },
-      { imgurl: "images/2.2 BSS_Ivy.png", number: "30/102" },
-      { imgurl: "images/2.3 BSS_Ven.png", number: "15/102" }
+      { imgurl: "images/Cards/2.1 BSS_Bulb.png", number: "44/102" },
+      { imgurl: "images/Cards/2.2 BSS_Ivy.png", number: "30/102" },
+      { imgurl: "images/Cards/2.3 BSS_Ven.webm", number: "15/102" }
     ]
   },
     baseSet: {
     title: "Base Set | Unlimited",
     subtitle: "Apr 1999 (estimated)",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    videoSrc: "images/Base set pack.webm",
+    videoSrc: "images/Animations/Base set pack.webm",
     cards: [
-      { imgurl: "images/3.1 BS_Bulb.png", number: "44/102" },
-      { imgurl: "images/3.2 BS_Ivy.png", number: "30/102" },
-      { imgurl: "images/3.3 BS_Ven.png", number: "15/102" }
+      { imgurl: "images/Cards/3.1 BS_Bulb.png", number: "44/102" },
+      { imgurl: "images/Cards/3.2 BS_Ivy.png", number: "30/102" },
+      { imgurl: "images/Cards/3.3 BS_Ven.webm", number: "15/102" }
     ]
   },
     baseSetUK: {
     title: "Base Set | 4th/UK Print",
     subtitle: "Jan 2000 (estimated)",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    videoSrc: "images/Base set pack.webm",
+    videoSrc: "images/Animations/Base set pack.webm",
     cards: [
-      { imgurl: "images/4.1 UK_Bulb.png", number: "44/102" },
-      { imgurl: "images/4.2 UK_Ivy.png", number: "30/102" },
-      { imgurl: "images/4.3 UK_Ven.png", number: "15/102" }
+      { imgurl: "images/Cards/4.1 UK_Bulb.png", number: "44/102" },
+      { imgurl: "images/Cards/4.2 UK_Ivy.png", number: "30/102" },
+      { imgurl: "images/Cards/4.3 UK_Ven.webm", number: "15/102" }
+    ]
+  },
+    baseSet2: {
+    image: "images/Set logos/BS2_logo.png",
+    title: "Base Set 2",
+    subtitle: "24 Feb 2000",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    videoSrc: "images/Animations/Base set pack.webm",
+    cards: [
+      { imgurl: "images/Cards/4.1 UK_Bulb.png", number: "44/102" },
+      { imgurl: "images/Cards/4.2 UK_Ivy.png", number: "30/102" },
+      { imgurl: "images/Cards/4.3 UK_Ven.png", number: "15/102" }
     ]
   }
 };
@@ -95,6 +124,55 @@ function getVineScale(width = window.innerWidth, height = window.innerHeight) {
   return clamp(VINE_SIZE.vine, 0.4, 3) * getResponsiveVineScale(width, height);
 }
 
+function getRarityIconSrc(rarity) {
+  const key = String(rarity || "").trim().toLowerCase();
+
+  if (!key) return "";
+
+  if (key.includes("holo")) {
+    return RARITY_ICON_SRC["holo rare"];
+  }
+
+  return RARITY_ICON_SRC[key] || "";
+}
+
+function isVideoSource(src) {
+  return typeof src === "string" && src.trim().toLowerCase().endsWith(".webm");
+}
+
+function createCardFrontMedia(card, setTitle) {
+  const media = isVideoSource(card.imgurl)
+    ? document.createElement("video")
+    : document.createElement("img");
+
+  media.className = "card-image card-face card-face-front";
+  media.src = card.imgurl;
+  const cardLabel = `${setTitle} card ${card.number}`;
+  media.dataset.set = setTitle;
+  media.dataset.number = card.number;
+  media.dataset.rarity = card.rarity || "";
+  media.dataset.illustrator = card.illustrator || "";
+  media.dataset.ebay = card.ebay || "";
+  media.dataset.cardmarket = card.cardmarket || "";
+
+  if (media.tagName === "VIDEO") {
+    media.muted = true;
+    media.autoplay = true;
+    media.loop = true;
+    media.playsInline = true;
+    media.preload = "auto";
+    media.setAttribute("aria-label", cardLabel);
+  } else {
+    media.alt = cardLabel;
+  }
+
+  return media;
+}
+
+function getCardModalSourceMedia(flipButton) {
+  return flipButton.querySelector(".card-face-front");
+}
+
 function ensureCardModal() {
   if (cardModalState) return cardModalState;
 
@@ -109,6 +187,9 @@ function ensureCardModal() {
       <div class="card-modal-right">
         <h3 class="card-modal-title"></h3>
         <p class="card-modal-number"></p>
+        <div class="card-modal-rarity" aria-label="Card rarity"></div>
+        <p class="card-modal-illustrator"></p>
+        <div class="card-modal-links" aria-label="Marketplace links"></div>
       </div>
     </div>
   `;
@@ -119,6 +200,9 @@ function ensureCardModal() {
   const cardAnchor = backdrop.querySelector(".card-modal-card-anchor");
   const title = backdrop.querySelector(".card-modal-title");
   const number = backdrop.querySelector(".card-modal-number");
+  const rarity = backdrop.querySelector(".card-modal-rarity");
+  const illustrator = backdrop.querySelector(".card-modal-illustrator");
+  const links = backdrop.querySelector(".card-modal-links");
 
   closeButton.addEventListener("click", () => {
     closeCardModal();
@@ -140,7 +224,10 @@ function ensureCardModal() {
     backdrop,
     cardAnchor,
     title,
-    number
+    number,
+    rarity,
+    illustrator,
+    links
   };
 
   return cardModalState;
@@ -151,10 +238,77 @@ function openCardModal(flipButton) {
 
   const modal = ensureCardModal();
   const sourceRect = flipButton.getBoundingClientRect();
-  const sourceImage = flipButton.querySelector(".card-face-front");
+  const sourceMedia = getCardModalSourceMedia(flipButton);
 
-  modal.title.textContent = sourceImage?.dataset.set || "Card";
-  modal.number.textContent = sourceImage?.dataset.number || "";
+  modal.title.textContent = sourceMedia?.dataset.set || "Card";
+  modal.number.textContent = sourceMedia?.dataset.number || "";
+  modal.rarity.innerHTML = "";
+  modal.illustrator.textContent = "";
+  modal.links.innerHTML = "";
+
+  const cardRarity = sourceMedia?.dataset.rarity || "";
+  const cardIllustrator = sourceMedia?.dataset.illustrator || "";
+
+  if (cardRarity) {
+    const rarityIconSrc = getRarityIconSrc(cardRarity);
+    const rarityRow = document.createElement("div");
+    rarityRow.className = "card-modal-rarity-row";
+
+    if (rarityIconSrc) {
+      const rarityIcon = document.createElement("img");
+      rarityIcon.className = "card-modal-rarity-icon";
+      rarityIcon.src = rarityIconSrc;
+      rarityIcon.alt = `${cardRarity} rarity symbol`;
+      rarityRow.appendChild(rarityIcon);
+    }
+
+    const rarityText = document.createElement("span");
+    rarityText.className = "card-modal-rarity-text";
+    rarityText.textContent = cardRarity;
+    rarityRow.appendChild(rarityText);
+
+    modal.rarity.appendChild(rarityRow);
+  }
+
+  if (cardIllustrator) {
+    modal.illustrator.textContent = `Illustrator: ${cardIllustrator}`;
+  }
+
+  modal.rarity.classList.toggle("is-hidden", !cardRarity);
+  modal.illustrator.classList.toggle("is-hidden", !cardIllustrator);
+
+  const cardLinks = [
+    {
+      href: sourceMedia?.dataset.ebay,
+      label: "eBay",
+      logoSrc: EBAY_LOGO_SRC
+    },
+    {
+      href: sourceMedia?.dataset.cardmarket,
+      label: "Cardmarket",
+      logoSrc: CARDMARKET_LOGO_SRC
+    }
+  ];
+
+  cardLinks.forEach(link => {
+    if (!link.href) return;
+
+    const anchor = document.createElement("a");
+    anchor.className = "card-modal-marketplace-link";
+    anchor.href = link.href;
+    anchor.target = "_blank";
+    anchor.rel = "noopener noreferrer";
+    anchor.setAttribute("aria-label", `Open ${link.label} listing`);
+
+    const logo = document.createElement("img");
+    logo.src = link.logoSrc;
+    logo.alt = `${link.label} logo`;
+
+    anchor.appendChild(logo);
+    modal.links.appendChild(anchor);
+  });
+
+  modal.links.classList.toggle("is-hidden", modal.links.children.length === 0);
 
   const floatingCard = flipButton.cloneNode(true);
   floatingCard.classList.remove("is-spinning", "is-source-hidden");
@@ -551,6 +705,7 @@ function createSetSection(isContentLeft) {
   targetColumn.classList.add("set-column");
   targetColumn.innerHTML = `
     <div class="text-header">
+      <img class="cards-logo is-hidden" alt="" loading="lazy">
       <h2 class="cards-title"></h2>
       <p class="cards-subtitle"></p>
       <p class="cards-description"></p>
@@ -566,6 +721,7 @@ function initializeSetSection(section, setData) {
   const video = section.querySelector(".pack-video");
   const stickyVideo = section.querySelector(".sticky-video");
   const cardsContainer = section.querySelector(".cards-container");
+  const cardsLogo = section.querySelector(".cards-logo");
   const cardsTitle = section.querySelector(".cards-title");
   const cardsSubtitle = section.querySelector(".cards-subtitle");
   const cardsDescription = section.querySelector(".cards-description");
@@ -646,7 +802,7 @@ function initializeSetSection(section, setData) {
 
     requestAnimationFrame(() => {
       items.forEach(item => {
-        item.style.transition = "transform 0.6s ease-out";
+        item.style.transition = "transform 0.45s ease-out";
         item.classList.remove("no-transition");
       });
       cardsContainer.style.visibility = "visible";
@@ -656,6 +812,7 @@ function initializeSetSection(section, setData) {
   function renderCards() {
     if (hasVideo) {
       video.src = setData.videoSrc;
+      video.playbackRate = 1.5;
       video.classList.remove("is-hidden");
     } else {
       video.removeAttribute("src");
@@ -664,6 +821,18 @@ function initializeSetSection(section, setData) {
 
     cardsContainer.style.visibility = "hidden";
     cardsContainer.innerHTML = "";
+
+    const hasLogo = typeof setData.image === "string" && setData.image.trim() !== "";
+    if (hasLogo) {
+      cardsLogo.src = setData.image;
+      cardsLogo.alt = `${setData.title} logo`;
+      cardsLogo.classList.remove("is-hidden");
+    } else {
+      cardsLogo.removeAttribute("src");
+      cardsLogo.alt = "";
+      cardsLogo.classList.add("is-hidden");
+    }
+
     cardsTitle.textContent = setData.title;
     cardsSubtitle.textContent = setData.subtitle;
     cardsDescription.textContent = setData.description;
@@ -680,12 +849,7 @@ function initializeSetSection(section, setData) {
       flipButton.className = "card-flip";
       flipButton.setAttribute("aria-label", `Flip ${setData.title} card ${card.number}`);
 
-      const frontImg = document.createElement("img");
-      frontImg.className = "card-image card-face card-face-front";
-      frontImg.src = card.imgurl;
-      frontImg.alt = `${setData.title} card ${card.number}`;
-      frontImg.dataset.set = setData.title;
-      frontImg.dataset.number = card.number;
+      const frontMedia = createCardFrontMedia(card, setData.title);
 
       const backImg = document.createElement("img");
       backImg.className = "card-image card-face card-face-back";
@@ -696,7 +860,7 @@ function initializeSetSection(section, setData) {
       caption.className = "card-number";
       caption.textContent = card.number;
 
-      flipButton.appendChild(frontImg);
+      flipButton.appendChild(frontMedia);
       flipButton.appendChild(backImg);
       item.appendChild(flipButton);
       item.appendChild(caption);
@@ -713,11 +877,24 @@ function initializeSetSection(section, setData) {
         }
       };
 
-      if (frontImg.complete && frontImg.naturalWidth !== 0) {
+      if (frontMedia.tagName === "VIDEO") {
+        const onVideoReady = () => {
+          frontMedia.currentTime = 0;
+          frontMedia.play().catch(() => {});
+          onLoad();
+        };
+
+        if (frontMedia.readyState >= 2) {
+          onVideoReady();
+        } else {
+          frontMedia.addEventListener("loadeddata", onVideoReady, { once: true });
+          frontMedia.addEventListener("error", onLoad, { once: true });
+        }
+      } else if (frontMedia.complete && frontMedia.naturalWidth !== 0) {
         onLoad();
       } else {
-        frontImg.addEventListener("load", onLoad);
-        frontImg.addEventListener("error", onLoad);
+        frontMedia.addEventListener("load", onLoad);
+        frontMedia.addEventListener("error", onLoad);
       }
     });
   }

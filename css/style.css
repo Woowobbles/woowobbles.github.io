@@ -1,5 +1,5 @@
 :root {
-  --set-section-height: 60vh;
+  --set-section-height: 68vh;
   --set-media-start-top: 20%;
   --header-font-size: 1.5rem;
   --subtitle-font-size: 1rem;
@@ -215,9 +215,31 @@ body {
   text-align: right;
 }
 
+.video-section.content-left .cards-logo {
+  margin-left: auto;
+}
+
 .video-section.content-right .cards-title,
 .video-section.content-right .cards-subtitle {
   text-align: left;
+}
+
+.video-section.content-right .cards-logo {
+  margin-right: auto;
+}
+
+.cards-logo {
+  display: block;
+  width: auto;
+  max-width: min(130px, 100%);
+  max-height: 45px;
+  margin: 0 0 14px 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.cards-logo.is-hidden {
+  display: none;
 }
 
 .cards-title {
@@ -252,7 +274,8 @@ body {
 
 .video-section.animation-complete .cards-title,
 .video-section.animation-complete .cards-subtitle,
-.video-section.animation-complete .cards-description {
+.video-section.animation-complete .cards-description,
+.video-section.animation-complete .cards-logo {
   opacity: 1;
 }
 
@@ -264,28 +287,28 @@ body {
   justify-items: center;
 }
 
-.set-column video {
+.set-column .pack-video {
   position: absolute;
   right: 0;
   top: var(--set-media-start-top);
   transform: translateY(-50%);
 }
 
-.set-column video.is-hidden {
+.set-column .pack-video.is-hidden {
   display: none;
 }
 
-.video-section.content-right .set-column video {
+.video-section.content-right .set-column .pack-video {
   left: 0;
   right: auto;
   transform: translate(-10vw, -50%);
 }
 
-.set-column video.video-exit {
+.set-column .pack-video.video-exit {
   transform: translateY(-50%) translateX(-120vw) rotate(-15deg) scale(0.8);
 }
 
-.video-section.content-right .set-column video.video-exit {
+.video-section.content-right .set-column .pack-video.video-exit {
   transform: translateY(-50%) translateX(120vw) rotate(15deg) scale(0.8);
 }
 
@@ -298,7 +321,7 @@ body {
   width: 100%;
   max-width: 10vw;
   min-width: 0;
-  transition: transform 0.6s ease-out;
+  transition: transform 0.45s ease-out;
   will-change: transform;
 }
 
@@ -345,6 +368,19 @@ body {
   border-radius: 5.5%;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+}
+
+video.card-face-front {
+  position: static;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  transform: none;
+  object-fit: cover;
 }
 
 .card-face-back {
@@ -453,6 +489,71 @@ body.card-modal-open {
   font-weight: 600;
 }
 
+.card-modal-rarity,
+.card-modal-illustrator {
+  margin: 0;
+  color: #4f5f4b;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.card-modal-rarity.is-hidden,
+.card-modal-illustrator.is-hidden {
+  display: none;
+}
+
+.card-modal-rarity-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-modal-rarity-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.card-modal-rarity-text {
+  line-height: 1;
+}
+
+.card-modal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.card-modal-links.is-hidden {
+  display: none;
+}
+
+.card-modal-marketplace-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(49, 63, 46, 0.14);
+  box-shadow: 0 8px 18px rgba(8, 18, 14, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.card-modal-marketplace-link:hover {
+  transform: translateY(-2px);
+  background: #ffffff;
+  box-shadow: 0 10px 22px rgba(8, 18, 14, 0.12);
+}
+
+.card-modal-marketplace-link img {
+  display: block;
+  width: auto;
+  height: 28px;
+}
+
 .card-modal-close {
   position: absolute;
   top: 16px;
@@ -508,9 +609,13 @@ body.card-modal-open {
     padding: 24px 24px 28px;
     text-align: center;
   }
+
+  .card-modal-links {
+    justify-content: center;
+  }
 }
 
-video {
+.pack-video {
   width: 20vw;
   height: 100%;
   max-height: 100vh;
@@ -524,7 +629,7 @@ video {
   object-fit: contain;
 }
 
-video.video-exit {
+.pack-video.video-exit {
   transform: translateY(-50%) translateX(-120vw) rotate(-15deg) scale(0.8);
   opacity: 1;
 }
